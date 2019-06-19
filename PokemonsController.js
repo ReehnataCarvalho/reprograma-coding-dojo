@@ -3,9 +3,9 @@ const pokemonsModel = require('./PokemonsSchema')
 
 connect()
 
-const calcularNivel = datas => {
+const calcularNivel = (datas, nivel)=> {
   const diff = Math.abs(new Date(datas.dataInicio) - new Date(datas.dataFim)) / 3600000
-  return diff / 4;
+  return diff / 4 + nivel;
 }
 
 const getAll = async () => {
@@ -35,10 +35,12 @@ const update = (id, pokemon) => {
   )
 }
 
-const treinar = (id, datas) => {
+const treinar = async (id, datas) => {
+  const pokemon = await pokemonsModel.findById(id, 'nivel') 
+  const nivel = pokemon.nivel
   return pokemonsModel.findByIdAndUpdate(
     id,
-    { $set: { nivel: calcularNivel(datas) } },
+    { $set: { nivel: calcularNivel(datas, nivel) } },
     { new: true },
   )
 }

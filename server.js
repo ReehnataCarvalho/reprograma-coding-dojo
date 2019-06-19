@@ -4,6 +4,16 @@ const bodyParser = require('body-parser')
 const servidor = express()
 const controller = require('./PokemonsController')
 const PORT = 3000
+const logger = (request, response, next) => {
+  console.log(`Request type: ${request.method} to ${request.originalUrl}`)
+
+  response.on('finish', () => {
+    console.log(`${new Date().toISOString()} ${response.statusCode} ${response.statusMessage};`)
+  })
+
+  next()
+}
+
 
 servidor.use(cors())
 servidor.use(bodyParser.json())
