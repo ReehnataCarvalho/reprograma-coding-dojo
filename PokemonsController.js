@@ -1,5 +1,6 @@
 const { connect } = require('./PokemonsRepository')
 const pokemonsModel = require('./PokemonsSchema')
+const LIMITE_NIVEL_POKEMON = 150
 
 connect()
 
@@ -7,8 +8,14 @@ const calcularNivel = (datas, nivel)=> {
   const diff = Math.abs(new Date(datas.dataInicio) - new Date(datas.dataFim)) / 3600000
   return diff / 4 + nivel;
 }
+// const calcularNivel = (datas, nivelAnterior) => {
+//   const diff = Math.abs(new Date(datas.dataInicio) - new Date(datas.dataFim)) / 3600000
+//   const novoNivel = diff / 4 + nivelAnterior;
 
-const getAll = async () => {
+//   return novoNivel >= LIMITE_NIVEL_POKEMON ? LIMITE_NIVEL_POKEMON : novoNivel;
+// }
+
+const getAll = () => {
   return pokemonsModel.find((error, pokemons) => {
     return pokemons
   })
@@ -41,9 +48,21 @@ const treinar = async (id, datas) => {
   return pokemonsModel.findByIdAndUpdate(
     id,
     { $set: { nivel: calcularNivel(datas, nivel) } },
-    { new: true },
   )
 }
+//   const pokemon = await pokemonsModel.findById(id, 'nivel')
+//   const nivelPokemon = pokemon.nivel
+
+//   if (nivelPokemon >= LIMITE_NIVEL_POKEMON) {
+//     throw new Error('Seu pokémon já é forte o suficiente!')
+//   }
+
+//   return pokemonsModel.findByIdAndUpdate(
+//     id,
+//     { $set: { nivel: calcularNivel(datas, nivelPokemon) } },
+//     { new: true },
+//   )
+// }
 
 module.exports = {
   getAll,

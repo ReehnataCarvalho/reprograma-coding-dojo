@@ -1,22 +1,30 @@
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const servidor = express()
 const controller = require('./PokemonsController')
+const params = require('params')
+const parametrosPermitidos = require('./parametrosPermitidos')
+const servidor = express()
 const PORT = 3000
 const logger = (request, response, next) => {
   console.log(`Request type: ${request.method} to ${request.originalUrl}`)
 
   response.on('finish', () => {
     console.log(`${new Date().toISOString()} ${response.statusCode} ${response.statusMessage};`)
-  })
+  
+  }) 
+  // console.log(`${new Date().toISOString()} Request type: ${request.method} to ${request.originalUrl}`)
+
+  // response.on('finish', () => {
+  //   console.log(`${response.statusCode} ${response.statusMessage};`)
+  // })
 
   next()
 }
 
-
 servidor.use(cors())
 servidor.use(bodyParser.json())
+servidor.use(logger)
 
 servidor.get('/', (request, response) => {
   response.send('Olá, mundo!')
@@ -48,7 +56,7 @@ servidor.get('/pokemons/:pokemonId', (request, response) => {
 
 servidor.patch('/pokemons/:id', (request, response) => {
   const id = request.params.id
-  controller.update(id, request.body)
+  controller.update(id, params(request.body).only(parametrosPermitidos.update))
     .then(pokemon => {
       if(!pokemon) { response.sendStatus(404) }
       else { response.send(pokemon) }
