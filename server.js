@@ -6,19 +6,13 @@ const pokemonsController = require('./PokemonsController')
 const treinadoresController = require('./TreinadoresController')
 const params = require('params')
 const parametrosPermitidos = require('./parametrosPermitidos')
-const PORT = 3000
+const PORT = 3001
 const logger = (request, response, next) => {
-  console.log(`Request type: ${request.method} to ${request.originalUrl}`)
+  console.log(`${new Date().toISOString()} Request type: ${request.method} to ${request.originalUrl}`)
 
   response.on('finish', () => {
-    console.log(`${new Date().toISOString()} ${response.statusCode} ${response.statusMessage};`)
-  
-  }) 
-  // console.log(`${new Date().toISOString()} Request type: ${request.method} to ${request.originalUrl}`)
-
-  // response.on('finish', () => {
-  //   console.log(`${response.statusCode} ${response.statusMessage};`)
-  // })
+    console.log(`${response.statusCode} ${response.statusMessage};`)
+  })
 
   next()
 }
@@ -36,9 +30,9 @@ servidor.get('/pokemons', async (request, response) => {
     .then(pokemons => response.send(pokemons))
 })
 
-servidor.get('/pokemons/:pokemonId', (request, response) => {
+servidor.get('/treinadores/:treinadorId/pokemon/:pokemonId', (request, response) => {
   const pokemonId = request.params.pokemonId
-  pokemonsController.getById(pokemonId)
+  pokemonsController.getPokemon(pokemonId)
     .then(pokemon => {
       if(!pokemon){
         response.sendStatus(404)
@@ -189,6 +183,29 @@ servidor.patch('/treinadores/:treinadorId/treinar/:pokemonId', (request, respons
         response.sendStatus(400)
       } else {
         console.log(error)
+        response.sendStatus(500)
+      }
+    })
+})
+
+servidor.get('/treinadores/:treinadorId/pokemons', async (request, response) => {
+  const treinadorId = request.params.treinadorId
+  treinadoresController.getPokemons(treinadorId)
+    .then(pokemons => response.send(pokemons))
+})
+
+servidor.patch('/treinadores/:treinadorId/pokemon/:pokemonId', (request, response) => {
+  const treinadorId = request.params.treinadorId
+  const pokemonId = request.params.pokemonId
+  treinadoresController.updatePokemon(treinadorId, pokemonId, request.body)
+    .then(pokemon => {
+      if(!pokemon) { response.sendStatus(404) }
+      else { response.send(pokemon) }
+    })
+    .catch(error => {
+      if(error.name === "MongoError" || error.name === "CastError"){
+        response.sendStatus(400)
+      } else {
         response.sendStatus(500)
       }
     })

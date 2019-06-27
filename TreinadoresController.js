@@ -11,6 +11,13 @@ const calcularNivel = (datas, nivelAnterior) => {
 
   return novoNivel >= LIMITE_NIVEL_POKEMON ? LIMITE_NIVEL_POKEMON : novoNivel;
 }
+const getPokemon = () =>{
+  return treinadoresModel.findOneAndUpdate(
+    { _id: treinadorId, "pokemons._id": pokemonId },
+    { $set: { "pokemons.$": { ...pokemon, _id: pokemonId } } },
+    { new: true }
+  )
+}
 
 const getAll = () => {
   return treinadoresModel.find((error, treinadores) => {
@@ -59,6 +66,19 @@ const treinarPokemon = async (treinadorId, pokemonId, datas) => {
   return treinador.save()
 }
 
+const getPokemons = async treinadorId => {
+  const treinador = await getById(treinadorId)
+  return treinador.pokemons
+}
+
+const updatePokemon = (treinadorId, pokemonId, pokemon) => {
+  return treinadoresModel.findOneAndUpdate(
+    { _id: treinadorId, "pokemons._id": pokemonId },
+    { $set: { "pokemons.$": { ...pokemon, _id: pokemonId } } },
+    { new: true }
+  )
+}
+
 module.exports = {
   getAll,
   getById,
@@ -66,5 +86,7 @@ module.exports = {
   remove,
   update,
   addPokemon,
-  treinarPokemon
+  treinarPokemon,
+  getPokemons,
+  updatePokemon
 }
